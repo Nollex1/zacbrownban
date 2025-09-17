@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ticket — Sphere Nights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    :root{--ink:#0b0f19;--muted:#6b7280;--line:#e5e7eb}
+    *{box-sizing:border-box} body{margin:0;font-family:'Inter',system-ui,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#fff}
+    header{background:#000;color:#fff;padding:18px 20px;border-bottom:1px solid #111}
+    header h1{margin:0;font-size:18px}
+    main{max-width:900px;margin:20px auto;padding:0 20px}
+    .card{border:1px solid var(--line);border-radius:14px;padding:20px}
+    .row{display:flex;gap:24px;flex-wrap:wrap}
+    .col{flex:1 1 280px}
+    .title{font-weight:800;margin:0 0 6px}
+    .muted{color:var(--muted);margin:0 0 8px}
+    .code{font-weight:800;font-size:18px}
+    .btn{display:inline-block;padding:12px 16px;border-radius:12px;text-decoration:none;text-align:center;font-weight:700;border:1px solid var(--line)}
+    .btn-dark{background:#111;color:#fff;border-color:#111}
+
+
+
+  /* … your existing styles here … */
+
+  @media (max-width:640px) {
+    h1, h2, h3 { font-size: 1.2rem; }   /* smaller titles */
+    .btn, .btn-dark, .btn-outline { width: 100%; text-align: center; }
+    .ticket-card { grid-template-columns: 1fr; } /* stack ticket details */
+    .actions { flex-direction: column; align-items: stretch; gap: 8px; }
+    #qrcode { width: 200px !important; height: 200px !important; margin: 0 auto; }
+  }
+</style>
+
+
+  </style>
+</head>
+<body>
+  <header><h1>Thank you — your ticket</h1></header>
+  <main>
+    <div class="card">
+      <div class="row">
+        <div class="col">
+          <h3 class="title" id="ev-title">—</h3>
+          <p class="muted" id="ev-sub">—</p>
+          <p class="muted" id="seat-line">—</p>
+          <p class="code">Ticket Code: <span id="code">—</span></p>
+          <div class="actions" style="margin-top:12px">
+            <button id="emailMe" class="btn btn-dark">Email me this ticket</button>
+          </div>
+        </div>
+        <div class="col" style="min-width:260px">
+          <div id="qrcode" style="width:260px;height:260px;border:1px dashed #e5e7eb;border-radius:12px;display:flex;align-items:center;justify-content:center"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // 1) Pull data saved by checkout.html
+    let pending = null;
+    try { pending = JSON.parse(localStorage.getItem('spherePending') || 'null'); } catch(e){}
+    if (!pending) {
+      document.body.innerHTML = '<p style="padding:20px">No ticket found. Go back to <a href="tickets.html">tickets</a>.</p>';
+      throw new Error('no data');
+    }
+
+    // 2) Fill text
+    document.getElementById('ev-title').textContent = pending.title;
+    document.getElementById('ev-sub').textContent   = `${pending.date} — ${pending.venue}`;
+    document.getElementById('seat-line').textContent= `${pending.choice.name} • ${pending.choice.desc} • Total ${pending.choice.qty} — $${Number(pending.choice.price).toLocaleString()}`;
+    document.getElementById('code').textContent     = pending.ticketCode;
+
+    // 3) Render QR (encode code + minimal metadata)
+    new QRCode(document.getElementById("qrcode"), {
+      text: JSON.stringify({ code: pending.ticketCode, e: pending.eventId, s: pending.choice.name, q: pending.choice.qty }),
+      width: 256, height: 256
+    });
+
+    // 4) Email the ticket (EmailJS front-end)
+    const EMAILJS_PUBLIC  = "-MkCbbObeoGgdRbRY";          // Your Public Key
+    const EMAILJS_SERVICE = "service_q1aaa6u";            // Your Service ID
+    const EMAILJS_TEMPLATE= "template_y15jc6s";           // Your Template ID
+    emailjs.init(EMAILJS_PUBLIC);
+
+    document.getElementById('emailMe').addEventListener('click', async () => {
+      try {
+        await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+          user_name:   pending.buyer?.name || '',
+          user_email:  pending.buyer?.email || '',
+          event_title: pending.title,
+          event_details: `${pending.date} — ${pending.venue}\n${pending.choice.name} • ${pending.choice.desc} • x${pending.choice.qty}`,
+          ticket_code: pending.ticketCode
+        });
+        alert('🎟️ Ticket sent! Check your email inbox (and spam).');
+      } catch (err) {
+        console.error(err);
+        alert('❌ Could not send email. Please try again later.');
+      }
+    });
+  </script>
+</body>
+</html>

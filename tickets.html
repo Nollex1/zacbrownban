@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tickets — Sphere Nights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{ --ink:#111; --muted:#8b8f97; --line:#e5e7eb; --soft:#f7f8fa; --accent:#0ea5e9; }
+    *{box-sizing:border-box}
+    body{font-family:'Inter',system-ui,Segoe UI,Roboto,sans-serif;margin:0;color:var(--ink);background:#fff}
+
+    /* Header (black, like home) */
+    header{ position:sticky; top:0; z-index:10; background:#000; color:#fff; padding:18px 20px; border-bottom:1px solid #111; }
+    header h2{margin:0 0 4px; font-size:18px; letter-spacing:.2px}
+    header p{margin:2px 0; font-size:14px; color:#d1d5db}
+
+    /* Controls */
+    .controls{
+      position:sticky; top:66px; z-index:9;
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      padding:12px 20px; border-bottom:1px solid var(--line); background:#fff;
+    }
+    select, button{
+      padding:10px 12px; border:1px solid var(--line); border-radius:999px; background:#fff;
+      font-weight:600; font-size:14px; cursor:pointer;
+    }
+    button:hover, select:hover{border-color:#cfd3da}
+
+    /* List */
+    .wrap{max-width:900px; margin:0 auto}
+    .ticket-list{padding:18px 20px}
+    .ticket-card{
+      display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:center;
+      border:1px solid var(--line); border-radius:12px; background:#fff;
+      padding:14px 16px; margin-bottom:12px; transition:box-shadow .15s ease,border-color .15s ease;
+    }
+    .ticket-card:hover{border-color:#cfd3da; box-shadow:0 6px 16px rgba(0,0,0,.05)}
+    .thumb{width:46px; height:46px; border-radius:10px; background:#eee; border:1px solid var(--line)}
+    .ticket-sec{font-weight:800}
+    .ticket-type{font-size:13px; color:var(--muted); margin-top:2px}
+    .price{font-weight:800; font-size:16px; text-align:right}
+    .actions{display:flex; gap:8px; align-items:center; justify-content:flex-end}
+    .btn-pill{
+      padding:8px 12px; border:1px solid #e5e7eb; border-radius:999px; cursor:pointer; background:#111; color:#fff;
+    }
+    .btn-pill:hover{opacity:.95}
+
+    footer{padding:22px 20px; border-top:1px solid var(--line); text-align:center; color:#9aa0a6; font-size:14px}
+
+    @media (max-width:640px){
+      .controls{top:62px}
+      .ticket-card{grid-template-columns:1fr auto; gap:10px}
+      .thumb{display:none}
+    } 
+
+    
+  /* … your existing styles here … */
+
+  @media (max-width:640px) {
+    h1, h2, h3 { font-size: 1.2rem; }   /* smaller titles */
+    .btn, .btn-dark, .btn-outline { width: 100%; text-align: center; }
+    .ticket-card { grid-template-columns: 1fr; } /* stack ticket details */
+    .actions { flex-direction: column; align-items: stretch; gap: 8px; }
+    #qrcode { width: 200px !important; height: 200px !important; margin: 0 auto; }
+  }
+</style>
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h2 id="ev-title">Zac Brown Band: Love &amp; Fear</h2>
+      <p id="ev-datetime">Fri · Dec 05, 2025 · 7:30 PM</p>
+      <p id="ev-venue">Sphere • Las Vegas, NV</p>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="wrap" style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <select id="qty">
+        <option>1 Ticket</option>
+        <option selected>2 Tickets</option>
+        <option>3 Tickets</option>
+        <option>4 Tickets</option>
+      </select>
+      <button id="btn-filters" type="button">Filters</button>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <div class="ticket-list" id="ticket-list"></div>
+  </main>
+
+  <footer>
+    © <span id="year"></span> Sphere Nights
+  </footer>
+
+  <script>
+    "use strict";
+
+    // Year
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // ---- PAYMENT LINKS ----
+    // Build 2Checkout link with the selected quantity; you can also add &currency=USD or &lang=en as needed.
+    const TWOCO_BASE = "https://secure.2checkout.com/checkout/buy?merchant=255696890473&tpl=default&prod=DS08DPQKLL";
+    const twoCoLink = (qty=1) => `${TWOCO_BASE}&qty=${qty}`;
+    const NOWPAY_LINK = "https://nowpayments.io/payment/?iid=5878295676";
+
+    // ---- EVENTS ----
+    const EVENTS = {
+      dec5: {
+        title: "Zac Brown Band: Love & Fear",
+        datetime: "Fri · Dec 05, 2025 · 7:30 PM",
+        venue: "Sphere • Las Vegas, NV",
+        tickets: [
+          { sec: "Sec 405 · Row 7",  type: "Standard Admission", price: 1195.65 },
+          { sec: "Sec 407 · Row 5",  type: "Standard Admission", price: 1209.20 },
+          { sec: "Sec 405 · Row 3",  type: "Standard Admission", price: 1214.80 },
+          { sec: "Sec 406 · Row 8",  type: "Standard Admission", price: 1230.50 },
+          { sec: "Sec 407 · Row 4",  type: "Standard Admission", price: 1224.55 },
+          { sec: "Sec 406 · Row 6",  type: "Standard Admission", price: 1257.30 },
+          { sec: "Sec 103 · Row 15", type: "Official Platinum",  price: 1264.95 },
+          { sec: "Sec 303 · Row 3",  type: "Official Platinum",  price: 1278.55 }
+        ]
+      },
+      dec6: {
+        title: "Zac Brown Band: Love & Fear",
+        datetime: "Sat · Dec 06, 2025 · 7:30 PM",
+        venue: "Sphere • Las Vegas, NV",
+        tickets: [
+          { sec: "Sec 408 · Row 7", type: "Standard Admission", price: 1189.50 },
+          { sec: "Sec 409 · Row 5", type: "Standard Admission", price: 1202.20 },
+          { sec: "Sec 410 · Row 3", type: "Standard Admission", price: 1216.80 }
+        ]
+      }
+    };
+
+    // ---- PICK EVENT FROM URL ----
+    const idParam = new URLSearchParams(window.location.search).get("id") || "dec5";
+    const ev = EVENTS[idParam] || EVENTS.dec5;
+
+    // ---- APPLY HEADER ----
+    document.getElementById("ev-title").textContent    = ev.title;
+    document.getElementById("ev-datetime").textContent = ev.datetime;
+    document.getElementById("ev-venue").textContent    = ev.venue;
+
+    // ---- RENDER LIST ----
+    const listEl = document.getElementById("ticket-list");
+
+    function render() {
+      const cards = ev.tickets.map((t, i) => {
+        const price = `$${t.price.toLocaleString()}`;
+        return `
+          <div class="ticket-card">
+            <div class="thumb" aria-hidden="true"></div>
+            <div>
+              <div class="ticket-sec">${t.sec}</div>
+              <div class="ticket-type">${t.type}</div>
+            </div>
+            <div class="actions">
+              <div class="price">${price}</div>
+              <button class="btn-pill select-btn" data-index="${i}">Select</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+      listEl.innerHTML = cards;
+
+      // Hook Select buttons -> store selection -> go to checkout
+      const qtySel = document.getElementById("qty");
+      listEl.querySelectorAll(".select-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const i = Number(btn.getAttribute("data-index"));
+          const t = ev.tickets[i];
+          const qty = qtySel ? (qtySel.selectedIndex + 1) : 2; // default 2
+
+          const choice = {
+            name: `${t.sec} (x${qty})`,
+            unit: t.price,
+            qty,
+            price: Number((t.price * qty).toFixed(2)),
+            desc: t.type
+          };
+
+          const payload = {
+            eventId: idParam,
+            title: ev.title,
+            date: ev.datetime,
+            venue: ev.venue,
+            choice,
+            paymentLinks: {
+              card: twoCoLink(qty),   // pass quantity into 2Checkout
+              crypto: NOWPAY_LINK
+            }
+          };
+
+          localStorage.setItem("sphereSelection", JSON.stringify(payload));
+          window.location.href = "checkout.html";
+        });
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>

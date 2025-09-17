@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout — Sphere Nights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#0b0f19;--muted:#6b7280;--line:#e5e7eb;--soft:#f7f8fa;--accent:#111}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Inter',system-ui,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#fff}
+    header{background:#000;color:#fff;padding:18px 20px;border-bottom:1px solid #111}
+    header h1{margin:0;font-size:18px}
+    header p{margin:2px 0;color:#d1d5db;font-size:14px}
+    main{max-width:900px;margin:20px auto;padding:0 20px}
+    .panel{border:1px solid var(--line);border-radius:12px;background:#fff;padding:18px 16px}
+    .row{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+    .col{flex:1 1 280px}
+    .title{font-weight:800;margin:0 0 6px}
+    .muted{color:var(--muted);font-size:14px;margin:0}
+    .price{font-weight:800;font-size:18px;margin-top:6px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .btn{display:inline-block;padding:12px 16px;border-radius:12px;text-decoration:none;text-align:center;font-weight:700}
+    .btn-dark{background:#111;color:#fff;border:1px solid #111}
+    .btn-outline{background:#fff;color:#111;border:1px solid var(--line)}
+    .btn-ghost{background:#fff;color:#111;border:1px solid var(--line)}
+    footer{padding:22px 20px;border-top:1px solid var(--line);text-align:center;color:#9aa0a6;font-size:14px;margin-top:30px}
+    .hint{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;padding:10px 12px;border-radius:10px;font-size:14px;margin:16px 0 0}
+
+    .qty-wrap{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+    .qty-btn{background:#f6f7f9;border:none;padding:8px 12px;cursor:pointer}
+    .qty-val{min-width:42px;text-align:center;font-weight:700}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+    .back{font-size:14px} 
+
+
+
+  /* … your existing styles here … */
+
+  @media (max-width:640px) {
+    h1, h2, h3 { font-size: 1.2rem; }   /* smaller titles */
+    .btn, .btn-dark, .btn-outline { width: 100%; text-align: center; }
+    .ticket-card { grid-template-columns: 1fr; } /* stack ticket details */
+    .actions { flex-direction: column; align-items: stretch; gap: 8px; }
+    #qrcode { width: 200px !important; height: 200px !important; margin: 0 auto; }
+  }
+</style>
+
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <h1 style="margin:0">Checkout</h1>
+      <a class="btn btn-ghost back" href="tickets.html">← Back to tickets</a>
+    </div>
+    <p id="event-line">Loading…</p>
+  </header>
+
+<main>
+  <div class="panel" style="max-width:900px;margin:20px auto;">
+    <div class="row">
+      <div class="col">
+        <h3 class="title" id="item-name">—</h3>
+        <p class="muted" id="item-desc">—</p>
+        <p class="muted" id="item-qty">—</p>
+        <div class="price" id="item-total">$0.00</div>
+      </div>
+
+      <div class="col">
+        <h3 class="title">Buyer info</h3>
+        <div style="display:grid;gap:10px">
+          <input id="buyerName"  placeholder="Full name"  style="padding:12px;border:1px solid #e5e7eb;border-radius:10px">
+          <input id="buyerEmail" placeholder="Email address" type="email" style="padding:12px;border:1px solid #e5e7eb;border-radius:10px">
+        </div>
+
+        <div class="actions" style="margin-top:16px">
+          <a id="pay-card"   class="btn btn-dark"    href="#" target="_blank" rel="noopener">Pay with Card</a>
+          <a id="pay-crypto" class="btn btn-outline" href="#" target="_blank" rel="noopener">Pay with Crypto</a>
+        </div>
+        <p class="muted" style="margin-top:8px">You will be redirected to a secure payment page.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>© <span id="year"></span> Sphere Nights</footer>
+
+<script>
+  // ---------- Utils ----------
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => `$${Number(n).toLocaleString()}`;
+
+  // Footer
+  $('year').textContent = new Date().getFullYear();
+
+  // Load selection (from tickets.html)
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem('sphereSelection') || 'null'); } catch(e) {}
+  if (!data) { location.href = 'tickets.html'; }
+
+  // Render line items
+  $('item-name').textContent  = data.choice.name;
+  $('item-desc').textContent  = data.choice.desc;
+  $('item-qty').textContent   = `Quantity: ${data.choice.qty}`;
+  $('item-total').textContent = fmt(data.choice.price);
+
+  // Generate a unique ticket code we’ll re-use on success page
+  function makeCode(evId, seat, qty) {
+    const base = `${evId}|${seat}|${qty}|${Date.now()}`;
+    return 'SPH-' + btoa(base).replace(/[^A-Z0-9]/gi,'').slice(0,10).toUpperCase();
+  }
+  const ticketCode = makeCode(data.eventId, data.choice.name, data.choice.qty);
+
+  // Build success return URL (same domain site)
+  // You can change this if you host under a subfolder
+  const SUCCESS_URL = `${location.origin}${location.pathname.replace('checkout.html','success.html')}`;
+
+  // Persist the “pending ticket” (so success.html can show it)
+  function persist(buyer) {
+    const payload = {
+      ...data,
+      buyer,
+      ticketCode,
+      // store links again (in case we need them)
+      paymentLinks: data.paymentLinks || {}
+    };
+    localStorage.setItem('spherePending', JSON.stringify(payload));
+  }
+
+  // Validate buyer inputs
+  function getBuyer() {
+    const name  = $('buyerName').value.trim();
+    const email = $('buyerEmail').value.trim();
+    if (!name)  { alert('Please enter your full name'); return null; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('Enter a valid email'); return null; }
+    return { name, email };
+  }
+
+  // Attach Pay buttons: save buyer + ticket, then go to provider
+  function go(url){
+    const buyer = getBuyer();
+    if (!buyer) return;
+    persist(buyer);
+    // open the provider link in same tab so they can naturally “back” to your site if needed
+    location.href = url;
+  }
+
+  // Provider links (already built in tickets.html and saved in selection)
+  const cardLink   = (data.paymentLinks && data.paymentLinks.card)   ? data.paymentLinks.card   : '#';
+  const cryptoLink = (data.paymentLinks && data.paymentLinks.crypto) ? data.paymentLinks.crypto : '#';
+
+  // (Optional) if your provider supports success/return URL params, you can append them here.
+  // Many gateways also let you set the return URL inside their dashboard.
+  // Example (only if accepted by your gateway):  cardLink += `&return-url=${encodeURIComponent(SUCCESS_URL)}`;
+
+  $('pay-card').addEventListener('click',   (e) => { e.preventDefault(); go(cardLink); });
+  $('pay-crypto').addEventListener('click', (e) => { e.preventDefault(); go(cryptoLink); });
+</script>
