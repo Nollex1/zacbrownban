@@ -1,3 +1,4 @@
+/* ===============  Base / Theme  =============== */
 :root{
   --bg:#0c0c0e;
   --panel:#141417;
@@ -6,192 +7,107 @@
   --brand:#ff9a1f;
   --ok:#2ecc71;
   --stroke:#26262c;
+  --ink:#111;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  color:var(--text);
+  background:var(--bg);
+}
 a{color:inherit;text-decoration:none}
 h1,h2{margin:0 0 .5rem}
 .section{padding:56px 20px;max-width:1100px;margin:0 auto}
-.section--alt{background:linear-gradient(180deg, #111 0%, #0c0c0e 100%)} 
+.section--alt{background:linear-gradient(180deg,#111 0%,#0c0c0e 100%)}
 
-
-body {
-  margin: 0;
-  font-family: Inter, sans-serif;
-  color: #fff;
-  background: url('hero.jpg') top center no-repeat fixed;
-  background-size: cover;   /* fills the screen */
+/* ===============  Cookie bar  =============== */
+.cookie{
+  position:fixed;left:0;right:0;bottom:0;
+  background:#111;border-top:1px solid var(--stroke);
+  padding:12px 16px;display:flex;gap:12px;align-items:center;z-index:50
 }
-
-
-
-  /* … your existing styles here … */
-
-  @media (max-width:640px) {
-    h1, h2, h3 { font-size: 1.2rem; }   /* smaller titles */
-    .btn, .btn-dark, .btn-outline { width: 100%; text-align: center; }
-    .ticket-card { grid-template-columns: 1fr; } /* stack ticket details */
-    .actions { flex-direction: column; align-items: stretch; gap: 8px; }
-    #qrcode { width: 200px !important; height: 200px !important; margin: 0 auto; }
-  }
-
-
-
-/* Cookie bar */
-.cookie{position:fixed;left:0;right:0;bottom:0;background:#111;border-top:1px solid var(--stroke);padding:12px 16px;display:flex;gap:12px;align-items:center;z-index:50}
 .cookie-actions{margin-left:auto;display:flex;gap:8px}
 
-/* Hero */
-.hero{position:relative;height: 100pxvh;min-height:600px;background:"";display:flex;flex-direction:column}
-.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,.4), rgba(0,0,0,.85))}
-.nav{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:16px 20px;max-width:1100px;margin:0 auto}
+/* ===============  HERO  =============== */
+/* IMPORTANT: set the image on .hero, not body; avoid background-attachment: fixed on iOS */
+.hero{
+  position:relative;
+  min-height:100vh;                 /* <- was 100pxvh */
+  display:flex;flex-direction:column;
+  background-image:url("hero.jpg"); /* file must be at repo root and named exactly hero.jpg */
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:15% center;   /* show the man on mobile */
+}
+.hero::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,.25) 0%, rgba(0,0,0,.85) 100%);
+  pointer-events:none;
+}
+.nav{
+  position:relative;z-index:2;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 20px;max-width:1100px;margin:0 auto
+}
 .brand{display:flex;align-items:center;gap:10px;font-weight:800}
 .logo{width:28px;height:28px}
-.hero__inner{position:relative;z-index:2;margin:auto;max-width:1100px;width:100%;padding:0 20px;text-align:center}
-.hero h1{font-size:clamp(24px,4vw,44px);line-height:1.1}
-.ribbon{background:var(--brand);color:#120b00;padding:10px 18px;border-radius:6px;display:inline-block;margin-top:12px;font-weight:800}
-
-
- .hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.85) 100%);
-}
-
-
-.hero--text { 
-  position: absolute;
-  top: 55%;
-  right: 15%;
-  transform: translateY(-50%);
-  text-align: right;
-  z-index: 2;
-
-}
-
-/* TOP TITLE: ZAC BROWN BAND */
-.hero-band{
-  font-family: Cinzel, serif;
-  text-transform: uppercase;
-  letter-spacing: .18em;              /* wide tracking */
-  font-weight: 900;
-  font-size: clamp(28px, 5vw, 64px);
-  line-height: 1.05;
-
-  /* metallic gradient fill */
-  background-image: linear-gradient(
-    180deg,
-    #ffffff 0%,
-    #e9edf2 35%,
-    #cfd7df 60%,
-    #a5b2c0 85%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  /* subtle dark outline + depth */
-  -webkit-text-stroke: 1px rgba(0,0,0,.35);
-  filter: drop-shadow(0 8px 20px rgba(0,0,0,.60))
-          drop-shadow(0 2px 2px rgba(0,0,0,.50));
-}
-
-
-
 .hero__overlay{
-  position: relative;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  gap: 12px;
-  height: 100%;
-  padding: 0 20px 64px; /* space above ribbon */
-  text-align: center;
+  position:relative;z-index:2;margin:auto;max-width:1100px;width:100%;
+  padding:0 20px 64px;text-align:center;display:grid;place-items:center;gap:12px
 }
 
-/* small line like LOVE & FEAR */
+/* Top title */
+.hero-band{
+  font-family:Cinzel,serif;text-transform:uppercase;letter-spacing:.18em;
+  font-weight:900;font-size:clamp(28px,5vw,64px);line-height:1.05;
+  background-image:linear-gradient(180deg,#fff 0%,#e9edf2 35%,#cfd7df 60%,#a5b2c0 85%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  -webkit-text-stroke:1px rgba(0,0,0,.35);
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.60)) drop-shadow(0 2px 2px rgba(0,0,0,.50));
+}
+
+/* “LOVE & FEAR” */
 .hero-super{
-  color: #ffd353;                    /* base gold if gradient fails */
-  text-transform: uppercase;
-  letter-spacing: .2em;
-  font-weight: 800;
-  font-size: clamp(16px, 2.5vw, 28px);
-
-  /* gold gradient fill */
-  background-image: linear-gradient(180deg, #ffe37a 0%, #ffcf4a 55%, #d19b1b 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  /* glow / lift */
-  -webkit-text-stroke: .6px rgba(0,0,0,.35);
-  filter: drop-shadow(0 6px 14px rgba(0,0,0,.55));
-  margin-bottom: 16px;
+  color:#ffd353;text-transform:uppercase;letter-spacing:.2em;font-weight:800;
+  font-size:clamp(16px,2.5vw,28px);
+  background-image:linear-gradient(180deg,#ffe37a 0%,#ffcf4a 55%,#d19b1b 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  -webkit-text-stroke:.6px rgba(0,0,0,.35);
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.55));
+  margin-bottom:16px;
 }
 
-/* big centered title */
+/* Big center title */
 .hero-title{
-  margin:0;
-  line-height:1.05;
-  font-family: Cinzel, serif;
-  text-transform: uppercase;
-  letter-spacing:.06em;
-  text-emphasis-position: right;
+  margin:0;line-height:1.05;font-family:Cinzel,serif;text-transform:uppercase;letter-spacing:.06em;
 }
 .hero-line{
-  display:block;
-  font-size: clamp(44px, 9vw, 120px);
-
-  /* silver/stone gradient fill */
-  background-image: linear-gradient(180deg, #ffffff 0%, #e8ecf1 40%, #bac6d2 70%, #8a97a5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  -webkit-text-stroke: 1.2px rgba(0,0,0,.38);
-  filter: drop-shadow(0 10px 22px rgba(0,0,0,.6));
+  display:block;font-size:clamp(44px,9vw,120px);
+  background-image:linear-gradient(180deg,#fff 0%,#e8ecf1 40%,#bac6d2 70%,#8a97a5 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  -webkit-text-stroke:1.2px rgba(0,0,0,.38);
+  filter:drop-shadow(0 10px 22px rgba(0,0,0,.6));
 }
-.hero-sub{
-  font-size: clamp(30px, 6.5vw, 66px);
-  margin-top:.12em;
-}
+.hero-sub{font-size:clamp(30px,6.5vw,66px);margin-top:.12em}
 
-/* full-width orange ribbon at bottom of hero */
+/* Orange ribbon */
 .banner-cta{
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  padding: 14px 16px;
-  background: #ff9a1f;
-  color: #120b00;
-  font-weight: 800;
-  letter-spacing: .06em;
-  border-top: 1px solid rgba(0,0,0,.25);
-  text-align: center;
+  position:absolute;left:0;right:0;bottom:0;
+  padding:14px 16px;background:var(--brand);color:#120b00;
+  font-weight:800;letter-spacing:.06em;border-top:1px solid rgba(0,0,0,.25);text-align:center;
 }
 
-/* tighten mobile spacing */
-@media (max-width: 520px){
-  .nav { padding: 12px 16px; }
-  .hero__overlay{ padding-bottom: 56px; }
-  .banner-cta {
-  position: absolute;
-  left: auto;       /* remove full stretch */
-  right: 8%;        /* align with text block */
-  bottom: 8%;       /* lift it a bit */
-  display: inline-block;
-  padding: 8px 14px;
-  background: #fff;   /* white background */
-  color: #111;        /* dark text */
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: .05em;
-  border-radius: 4px;
-  box-shadow: 0 3px 8px rgba(0,0,0,.35);
-}
+/* ===============  Tickets page base  =============== */
+body[data-page="tickets"]{background:#111}  /* solid dark for tickets */
+body[data-page="index"]{background:var(--bg)} /* leave hero to paint background */
 
-
-/* Tickets header + controls + list */
+/* ===============  Ticket list (dark UI)  =============== */
 .tm-header{background:#111;border-bottom:1px solid #333;color:#fff;padding:12px;display:flex;justify-content:space-between;gap:12px;align-items:center}
 .tm-header h3{margin:0;font-size:16px}
 .tm-header p{margin:2px 0 0;font-size:12px;color:#b9bbc2}
+
 .tickets-controls{display:flex;justify-content:space-between;gap:10px;margin:12px 0}
 #qty{background:#1c1c1f;color:#fff;border:1px solid #333;border-radius:22px;padding:10px 14px;min-width:150px}
 
@@ -204,30 +120,15 @@ body {
 
 .tickets-footer{position:sticky;bottom:0;background:rgba(12,12,14,.85);backdrop-filter:blur(6px);padding:10px;border-top:1px solid #333;display:flex;justify-content:flex-end}
 
-/* Modal */
+/* ===============  Modal (shared)  =============== */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:50}
 .modal.hidden{display:none}
 .modal-content{background:#222;border:1px solid #333;border-radius:12px;padding:16px;width:92%;max-width:420px}
 .modal-actions{display:flex;justify-content:space-between;margin-top:10px}
 
-
-
-body[data-page="tickets"] {
-  background: #111; /* solid dark */
-}
-
-body[data-page="index"] {
-  background: url("assets/hero.jpg") no-repeat center center fixed;
-  background-size: cover;
-}
-
-
-}
-
-
-/* Dates list */
+/* ===============  Dates table  =============== */
 .dates{border:1px solid var(--stroke);background:rgba(20,20,23,.7);backdrop-filter:blur(6px);border-radius:10px;overflow:hidden}
-.row{display:grid;grid-template-columns: 1.2fr 1.6fr 1fr;gap:12px;align-items:center;padding:18px}
+.row{display:grid;grid-template-columns:1.2fr 1.6fr 1fr;gap:12px;align-items:center;padding:18px}
 .row:not(:last-child){border-bottom:1px solid var(--stroke)}
 .when .day{font-weight:800}
 .venue,.city{color:var(--muted)}
@@ -235,14 +136,13 @@ body[data-page="index"] {
 .pill--ok{border-color:rgba(46,204,113,.25);background:rgba(46,204,113,.08);color:var(--ok)}
 .actions{display:flex;gap:10px;justify-content:flex-end}
 
-/* Cards / forms */
+/* ===============  Cards / forms / buttons  =============== */
 .pay-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
 .card{background:var(--panel);border:1px solid var(--stroke);border-radius:10px;padding:18px}
 .form{display:grid;gap:10px;max-width:520px}
 input,textarea{background:#0f0f12;border:1px solid var(--stroke);border-radius:8px;color:var(--text);padding:12px}
 .form-note{color:var(--muted);font-size:14px}
 
-/* Buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:8px;padding:10px 14px;font-weight:700;border:1px solid transparent}
 .btn-primary{background:var(--brand);color:#120b00}
 .btn-dark{background:#222;border-color:#333}
@@ -253,10 +153,32 @@ input,textarea{background:#0f0f12;border:1px solid var(--stroke);border-radius:8
 .footer{padding:28px 20px;border-top:1px solid var(--stroke);display:flex;gap:14px;justify-content:center;color:var(--muted)}
 .footer .link{color:var(--muted);text-decoration:underline}
 
-/* Responsive */
+/* ===============  Responsive  =============== */
 @media (max-width:800px){
   .row{grid-template-columns:1fr;gap:8px}
   .actions{justify-content:flex-start}
 }
 
+/* tighten mobile spacing + make the orange banner a white pill on small screens */
+@media (max-width:520px){
+  .nav{padding:12px 16px}
+  .hero{background-position:12% center}
+  .hero__overlay{padding-bottom:56px}
+  .banner-cta{
+    position:absolute;
+    left:auto; right:8%; bottom:8%;
+    display:inline-block;
+    padding:8px 14px;
+    background:#fff; color:#111;
+    font-size:14px; font-weight:700; letter-spacing:.05em;
+    border-radius:4px; box-shadow:0 3px 8px rgba(0,0,0,.35);
+    border:none;
+  }
+}
 
+/* general mobile utilities used elsewhere */
+@media (max-width:640px){
+  h1,h2,h3{font-size:1.2rem}
+  .btn,.btn-dark,.btn-outline{width:100%;text-align:center}
+  .ticket-card{flex-direction:column;align-items:stretch}
+}
